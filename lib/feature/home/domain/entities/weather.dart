@@ -11,7 +11,7 @@ abstract class Weather extends Equatable {
   final int humidity;
   final int cloudNo;
   final double windSpeed;
-  final int windDirection;
+  final double windDirection;
   const Weather({
     required this.temp,
     required this.description,

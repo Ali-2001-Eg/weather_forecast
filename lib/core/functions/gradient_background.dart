@@ -1,49 +1,117 @@
 import 'package:flutter/material.dart';
-
 import '../enums/weather_condition.dart';
 
-List<Color> getGradientColors(WeatherCondition condition) {
-  switch (condition) {
-    case WeatherCondition.sunny:
-      return [
-        const Color(0xFFFFD700),
-        const Color(0xFFFF8C00)
-      ]; // Gold to Dark Orange
-    case WeatherCondition.fewClouds:
-      return [
-        const Color(0xFFA2C4E6),
-        const Color(0xFFF0E68C)
-      ]; // Light Blue to Khaki
-    case WeatherCondition.cloudy:
-      return [
-        const Color(0xFFD3D3D3),
-        const Color(0xFF696969)
-      ]; // Light Gray to Dim Gray
-    case WeatherCondition.rainy:
-      return [
-        const Color(0xFF4A90E2),
-        const Color(0xFF007AFF)
-      ]; // Sky Blue to Bright Blue
-    case WeatherCondition.thunderstorm:
-      return [
-        const Color(0xFF232526),
-        const Color(0xFF414345)
-      ]; // Charcoal to Dark Slate
-    case WeatherCondition.snowy:
-      return [
-        const Color(0xFFB3E5FC),
-        const Color(0xFFE1F5FE)
-      ]; // Light Blue to Light Cyan
-    case WeatherCondition.mist:
-      return [
-        const Color(0xFFBDBDBD),
-        const Color(0xFFE0E0E0)
-      ]; // Gray to Light Gray
-    case WeatherCondition.others:
+WeatherEnum getWeatherConditionFromDescription(String description) {
+  switch (description) {
+    case 'clear sky':
+      return WeatherEnum.sunny;
+    case 'few clouds':
+      return WeatherEnum.fewClouds;
+    case 'scattered clouds':
+      return WeatherEnum.scatteredClouds;
+    case 'broken clouds':
+      return WeatherEnum.brokenClouds;
+    case 'shower rain':
+      return WeatherEnum.showerRain;
+    case 'rain':
+      return WeatherEnum.rainy;
+    case 'thunderstorm':
+      return WeatherEnum.thunderstorm;
+    case 'snow':
+      return WeatherEnum.snowy;
+    case 'mist':
+      return WeatherEnum.mist;
     default:
-      return [
-        const Color(0xFF6441A5),
-        const Color(0xFF2a0845)
-      ]; // Twilight gradient (Blue to Purple); // Default to a plain white gradient
+      return WeatherEnum.others;
+  }
+}
+
+LinearGradient getGradientForWeatherCondition(WeatherEnum condition) {
+  switch (condition) {
+    case WeatherEnum.sunny:
+      return const LinearGradient(
+        colors: [
+          Color(0xffffd700),
+          Color(0xffffa500),
+        ], // Gold to Orange
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.fewClouds:
+      return const LinearGradient(
+        colors: [
+          Color(0xff87cefa),
+          Color(0xffb0e0e6)
+        ], // Light Sky Blue to Powder Blue
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.scatteredClouds:
+      return const LinearGradient(
+        colors: [
+          Color(0xff87ceeb),
+          Color(0xffadd8e6)
+        ], // Sky Blue to Light Blue
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.brokenClouds:
+      return const LinearGradient(
+        colors: [
+          Color(0xffb0c4de),
+          Color(0xffd3d3d3)
+        ], // Light Steel Blue to Light Grey
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.showerRain:
+      return const LinearGradient(
+        colors: [
+          Color(0xff00bfff),
+          Color(0xff4682b4)
+        ], // Deep Sky Blue to Steel Blue
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.rainy:
+      return const LinearGradient(
+        colors: [
+          Color(0xff1e90ff),
+          Color(0xff00bfff)
+        ], // Dodger Blue to Deep Sky Blue
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.thunderstorm:
+      return const LinearGradient(
+        colors: [Color(0xff8b0000), Color(0xff4b0082)], // Dark Red to Indigo
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.snowy:
+      return const LinearGradient(
+        colors: [Color(0xffffffff), Color(0xffe0ffff)], // White to Light Cyan
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.mist:
+      return const LinearGradient(
+        colors: [
+          Color(0xfff5f5f5),
+          Color(0xffa9a9a9)
+        ], // White Smoke to Dark Grey
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+    case WeatherEnum.others:
+    default:
+      return const LinearGradient(
+        colors: [
+          Color(0xffd3d3d3),
+          Color(0xffa9a9a9)
+        ], // Light Grey to Dark Grey
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
   }
 }

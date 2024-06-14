@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:weather_forecast/core/error/exceptions.dart';
 
 import 'package:weather_forecast/core/error/failure.dart';
-import 'package:weather_forecast/feature/home/data/data_source/weathre_remote_datasource.dart';
+import 'package:weather_forecast/feature/home/data/data_source/weather_remote_datasource.dart';
 import 'package:weather_forecast/feature/home/data/repository/base_repository.dart';
 import 'package:weather_forecast/feature/home/domain/entities/weather.dart';
 

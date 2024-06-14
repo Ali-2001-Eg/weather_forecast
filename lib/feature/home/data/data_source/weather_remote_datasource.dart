@@ -23,11 +23,13 @@ class WeatherRemoteDataSource extends BaseWeatherRemoteDataSource {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      // print('data frim is ${data}');
+      // print('data from is  ${data}');
       return WeatherModel.fromJson(data);
     } else {
+      // print(json.decode(response.body)['message']);
+
       throw ServerException(
-          ErrorMessageModel(statusMessage: json.decode(response.body)));
+          ErrorMessageModel.fromJson(json.decode(response.body)));
     }
   }
 }

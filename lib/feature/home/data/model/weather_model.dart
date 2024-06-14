@@ -23,8 +23,8 @@ class WeatherModel extends Weather {
       minMax:
           '${(json['main']['temp_min'] - 273.15 as double).toStringAsFixed(2)}\u00B0/${(json['main']['temp_max'] - 273.15 as double).toStringAsFixed(2)}\u00B0',
       pressure: json['main']['pressure'],
-      windSpeed: json['wind']['speed'],
-      windDirection: json['wind']['deg'],
+      windSpeed: (json['wind']['speed']).toDouble(),
+      windDirection: (json['wind']['deg']).toDouble(),
     );
   }
 }

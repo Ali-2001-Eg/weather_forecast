@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:weather_forecast/feature/home/presentation/home_screen.dart';
+import 'package:weather_forecast/feature/home/presentation/weather_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

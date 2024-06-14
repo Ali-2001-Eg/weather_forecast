@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:weather_forecast/feature/home/data/data_source/weathre_remote_datasource.dart';
+import 'package:weather_forecast/feature/home/data/data_source/weather_remote_datasource.dart';
 import 'package:weather_forecast/feature/home/domain/repository/weather_repository.dart';
 import 'package:weather_forecast/feature/home/domain/usecases/weather_usecase.dart';
 import 'package:weather_forecast/feature/home/providers/state/weather_notifier.dart';

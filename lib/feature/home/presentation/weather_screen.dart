@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:weather_forecast/core/colors.dart';
 import 'package:weather_forecast/core/enums/weather_condition.dart';
 import 'package:weather_forecast/core/functions/text_styles.dart';
@@ -28,76 +30,77 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final weatherState = ref.watch(weatherNotifierProvider);
-    WeatherCondition currentCondition = WeatherCondition.sunny;
+    // WeatherEnum currentCondition = WeatherEnum.sunny;
     return Scaffold(
         body: weatherState.when(data: (data) {
+      WeatherEnum condition =
+          getWeatherConditionFromDescription(weatherState.value!.description);
+      LinearGradient gradient = getGradientForWeatherCondition(condition);
       return Stack(
         alignment: Alignment.topLeft,
         clipBehavior: Clip.antiAlias,
         children: [
-          Column(
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                    minHeight: MediaQuery.sizeOf(context).height,
-                    minWidth: double.infinity),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: getGradientColors(currentCondition),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                      minHeight: MediaQuery.sizeOf(context).height,
+                      minWidth: double.infinity),
+                  decoration: BoxDecoration(
+                    gradient: gradient,
                   ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height / 9,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      margin: const EdgeInsets.symmetric(horizontal: 15),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(20),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.sizeOf(context).height / 9,
                       ),
-                      child: Column(
-                        children: [
-                          _currentCityName(ref),
-                          //temperature and icon
-                          _currTemp(weatherState),
-                          //max and min
-                          _maxMin(weatherState),
-                          5.verticalSpace,
-                          //weather condition
-                          _weatherCondition(weatherState),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height / 15,
-                    ),
-                    //comfort level
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          'Comfort Level'.toUpperCase(),
-                          style: myStyle(color: Colors.white, fontSize: 15),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        margin: const EdgeInsets.symmetric(horizontal: 15),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          children: [
+                            _currentCityName(ref),
+                            //temperature and icon
+                            _currTemp(weatherState),
+                            //max and min
+                            _maxMin(weatherState),
+                            5.verticalSpace,
+                            //weather condition
+                            _weatherCondition(weatherState),
+                          ],
                         ),
                       ),
-                    ),
-                    5.verticalSpace,
-                    _humidityBuilder(weatherState),
-                    15.verticalSpace,
-                    _pressureBuilder(weatherState),
-                    15.verticalSpace,
-                    _windBuilder(weatherState),
-                    15.verticalSpace,
-                  ],
-                ),
-              )
-            ],
+                      SizedBox(
+                        height: MediaQuery.sizeOf(context).height / 15,
+                      ),
+                      //comfort level
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            'Comfort Level'.toUpperCase(),
+                            style: myStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                      ),
+                      5.verticalSpace,
+                      _humidityBuilder(weatherState),
+                      15.verticalSpace,
+                      _pressureBuilder(weatherState),
+                      15.verticalSpace,
+                      _windBuilder(weatherState),
+                      15.verticalSpace,
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
           _searchButton(),
         ],
@@ -111,8 +114,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         )),
       );
     }, loading: () {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        body: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+                4,
+                (index) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: double.infinity,
+                        height: 150.0,
+                        color: Colors.white,
+                      ),
+                    )),
+          ),
+        ),
       );
     }));
   }
@@ -330,7 +349,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
         CachedNetworkImage(
-          placeholder: (context, url) => const CircularProgressIndicator(),
+          placeholder: (context, url) => Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+            ),
+          ),
           errorWidget: (context, url, error) => const Icon(Icons.error),
           imageUrl: _getIcon(weatherState),
         ),
