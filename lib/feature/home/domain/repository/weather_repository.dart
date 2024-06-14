@@ -14,8 +14,8 @@ class WeatherRepository extends BaseRepository {
   });
   @override
   Future<Either<Failure, Weather>> getWeather({String city = 'Cairo'}) async{
-    final result =await baseWeatherRemoteDataSource.getWeather(city: city);
     try {
+    final result =await baseWeatherRemoteDataSource.getWeather(city: city);
       // print('result repository is $result');
       return Right(result);
     } on ServerException catch (e) {

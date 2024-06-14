@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
@@ -9,7 +8,7 @@ import 'package:weather_forecast/core/colors.dart';
 import 'package:weather_forecast/core/enums/weather_condition.dart';
 import 'package:weather_forecast/core/functions/text_styles.dart';
 import 'package:weather_forecast/feature/home/domain/entities/weather.dart';
-import 'package:weather_forecast/feature/home/presentation/widgets/error_widget.dart';
+import 'package:weather_forecast/feature/home/presentation/widgets/error_screen.dart';
 import 'package:weather_forecast/feature/home/presentation/widgets/shimmer_widget.dart';
 import 'package:weather_forecast/feature/home/providers/weather_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -45,6 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // WeatherEnum currentCondition = WeatherEnum.sunny;
     return Scaffold(
         body: weatherState.when(data: (data) {
+      // print('data is $data');
       WeatherEnum condition =
           getWeatherConditionFromDescription(weatherState.value!.description);
       LinearGradient gradient = getGradientForWeatherCondition(condition);
@@ -122,50 +122,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               : Container(),
         ],
       );
-    }, error: (error, stack) {
-      return ErrorScreen(error: error.toString());
+    }, error: (Object error, stack) {
+      // print('error is ${error.toString()}');
+      return ErrorScreen(onRetry: (ref) {
+        ref
+            .read(weatherNotifierProvider.notifier)
+            .getWeatherByCity(city: _getCityName());
+      });
     }, loading: () {
       return const ShimmerWidget();
     }));
   }
 
-  Container _searchBarBuilder(
-      SearchNotifier searchNotifierState, WidgetRef ref) {
-    return Container(
-      // color: Colors.white,
-      margin: const EdgeInsets.all(8.0)
-          .add(const EdgeInsets.symmetric(horizontal: 5))
-          .add(const EdgeInsets.only(top: 30)),
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15), color: Colors.white),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              autofocus: true,
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                hintText: 'Search...',
-                border: InputBorder.none,
-                hintStyle: TextStyle(color: Colors.grey),
+  final _formKey = GlobalKey<FormState>();
+
+  Form _searchBarBuilder(SearchNotifier searchNotifierState, WidgetRef ref) {
+    return Form(
+      key: _formKey,
+      child: Container(
+        // color: Colors.white,
+        margin: const EdgeInsets.all(8.0)
+            .add(const EdgeInsets.symmetric(horizontal: 5))
+            .add(const EdgeInsets.only(top: 30)),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15), color: Colors.white),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                autofocus: true,
+                textAlign: TextAlign.center,
+                decoration: const InputDecoration(
+                  hintText: 'Search...',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(color: Colors.grey),
+                ),
+                style: myStyle(fontSize: 16, color: Colors.grey),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a city name';
+                  }
+                  return null;
+                },
+                onChanged: (query) {
+                  searchNotifierState.setQuery(query);
+                },
               ),
-              style: myStyle(fontSize: 16, color: Colors.grey),
-              onChanged: (query) {
-                searchNotifierState.setQuery(query);
+            ),
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  ref.read(weatherNotifierProvider.notifier).getWeatherByCity(
+                      city: ref.read(searchNotifierProvider).query);
+                  searchNotifierState.stopSearch();
+                }
+                // searchNotifierState.removeQuery();
               },
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              ref.read(weatherNotifierProvider.notifier).getWeatherByCity(
-                  city: ref.read(searchNotifierProvider).query);
-              searchNotifierState.stopSearch();
-              // searchNotifierState.removeQuery();
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
