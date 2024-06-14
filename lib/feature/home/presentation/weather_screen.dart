@@ -9,9 +9,12 @@ import 'package:weather_forecast/core/colors.dart';
 import 'package:weather_forecast/core/enums/weather_condition.dart';
 import 'package:weather_forecast/core/functions/text_styles.dart';
 import 'package:weather_forecast/feature/home/domain/entities/weather.dart';
+import 'package:weather_forecast/feature/home/presentation/widgets/error_widget.dart';
+import 'package:weather_forecast/feature/home/presentation/widgets/shimmer_widget.dart';
 import 'package:weather_forecast/feature/home/providers/weather_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/functions/gradient_background.dart';
+import 'package:weather_forecast/feature/home/viewmodel/search_weather_notifier.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -23,13 +26,22 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void didChangeDependencies() {
-    ref.read(weatherNotifierProvider.notifier).getWeatherByCity(city: 'Cairo');
+    ref
+        .read(weatherNotifierProvider.notifier)
+        .getWeatherByCity(city: _getCityName());
     super.didChangeDependencies();
+  }
+
+  String _getCityName() {
+    return ref.read(searchNotifierProvider).query.isEmpty
+        ? 'Cairo'
+        : ref.read(searchNotifierProvider).query;
   }
 
   @override
   Widget build(BuildContext context) {
     final weatherState = ref.watch(weatherNotifierProvider);
+    final searchNotifierState = ref.watch(searchNotifierProvider.notifier);
     // WeatherEnum currentCondition = WeatherEnum.sunny;
     return Scaffold(
         body: weatherState.when(data: (data) {
@@ -52,6 +64,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   child: Column(
                     children: [
+                      ref.watch(searchNotifierProvider).isSearching == true
+                          ? _searchBarBuilder(searchNotifierState, ref)
+                          : Container(),
                       SizedBox(
                         height: MediaQuery.sizeOf(context).height / 9,
                       ),
@@ -102,38 +117,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
-          _searchButton(),
+          !ref.watch(searchNotifierProvider).isSearching == true
+              ? _searchButton(ref)
+              : Container(),
         ],
       );
     }, error: (error, stack) {
-      return Scaffold(
-        body: Center(
-            child: Text(
-          error.toString(),
-          style: myStyle(color: Colors.red),
-        )),
-      );
+      return ErrorScreen(error: error.toString());
     }, loading: () {
-      return Scaffold(
-        body: Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-                4,
-                (index) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: double.infinity,
-                        height: 150.0,
-                        color: Colors.white,
-                      ),
-                    )),
-          ),
-        ),
-      );
+      return const ShimmerWidget();
     }));
+  }
+
+  Container _searchBarBuilder(
+      SearchNotifier searchNotifierState, WidgetRef ref) {
+    return Container(
+      // color: Colors.white,
+      margin: const EdgeInsets.all(8.0)
+          .add(const EdgeInsets.symmetric(horizontal: 5))
+          .add(const EdgeInsets.only(top: 30)),
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15), color: Colors.white),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              autofocus: true,
+              textAlign: TextAlign.center,
+              decoration: const InputDecoration(
+                hintText: 'Search...',
+                border: InputBorder.none,
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+              style: myStyle(fontSize: 16, color: Colors.grey),
+              onChanged: (query) {
+                searchNotifierState.setQuery(query);
+              },
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              ref.read(weatherNotifierProvider.notifier).getWeatherByCity(
+                  city: ref.read(searchNotifierProvider).query);
+              searchNotifierState.stopSearch();
+              // searchNotifierState.removeQuery();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Container _humidityBuilder(AsyncValue<Weather> weatherState) {
@@ -291,7 +325,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
-  Positioned _searchButton() {
+  Positioned _searchButton(WidgetRef ref) {
     return Positioned(
         top: 35.h,
         right: 20.w,
@@ -301,7 +335,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             size: 30,
             color: Colors.white,
           ),
-          onPressed: () {},
+          onPressed: () {
+            ref.read(searchNotifierProvider.notifier).startSearch();
+          },
         ));
   }
 
@@ -416,7 +452,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          'Cairo',
+          _getCityName(),
           style: myStyle(),
           maxLines: 2,
         ),
