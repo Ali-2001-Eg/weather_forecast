@@ -32,7 +32,7 @@ A beautiful Flutter weather application that fetches weather data from the OpenW
 1. **Clone the repository**
 
     ```sh
-    git clone https://github.com/yourusername/weather_app.git
+    git clone https://github.com/Ali-2001-Eg/weather_forecast.git
     cd weather_app
     ```
 
